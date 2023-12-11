@@ -52,23 +52,25 @@ def find_pred(row, w):
     # using non na columns to calculate
     common_users = np.where(np.logical_and(row.notna(), w.notna()))[0]
     if len(common_users) == 0:
-        return 0
+        return -1
     total = row.iloc[common_users].sum()
     dot_product = np.dot(row.iloc[common_users], w.iloc[common_users])
-    return dot_product / total if total != 0 else 0
+    return dot_product / total if total != 0 else -1
+
 
 
 def myIBCF(newuser):
     S_sorted = pd.read_csv('sorted_data.csv')
     S_sorted.index = S_sorted.columns
     result = S_sorted.apply(find_pred, axis=1, args=(newuser,))
+    col = S_sorted.columns[np.where(newuser.notna())[0]]
+    result = result.drop(np.array(col).tolist())
     result = result[result > 0]
     res_sorted = result.sort_values(ascending=False).iloc[0:10]
     res_sorted = res_sorted.reset_index()
     res_sorted = res_sorted['index'].apply(lambda x: str(int(x.lstrip('m'))))
     res_sorted = res_sorted.tolist()
     # if the number of recommended movie less than 10, then we need to find the genre that user has highly rated
-    # print(res_sorted)
     if len(res_sorted) < 10:
         highest_rating_movie = newuser.idxmax()
         id = int(highest_rating_movie.lstrip('m'))
@@ -79,6 +81,7 @@ def myIBCF(newuser):
         append_movie = popular_movies[0:count]['movie_id'].tolist()
         append_movie = [str(item) for item in append_movie]
         res_sorted = res_sorted + append_movie
+
     recommended_movies = res_sorted
     return recommended_movies
 
