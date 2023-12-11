@@ -1,2 +1,3 @@
 # Project 4: Movie Recommender System
-## Procedure to build a recommendation app
+#### Procedure to build a recommendation app:
+* python app.py
